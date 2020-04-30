@@ -67,6 +67,5 @@ export const randomTetromino = () => {
   // Generate random numbers within the range of the length of the string
   const randomTetromino =
     tetrominos[Math.floor(Math.random() * tetrominos.length)];
-
-  return tetrominos[randomTetromino];
+  return TETROMINOS[randomTetromino];
 };
