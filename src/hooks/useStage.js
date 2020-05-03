@@ -4,11 +4,11 @@ import { createStage } from "../gameHelpers";
 
 export const useStage = (player, resetPlayer) => {
   const [stage, setStage] = useState(createStage());
- 
+
   useEffect(() => {
     const updateStage = (prevStage) => {
       // Clear stage
-      // TODO: refactor map to for loop
+      // TODO: refactor map to for loop for run time
       const newStage = prevStage.map((row) =>
         row.map((cell) => (cell[1] === "clear" ? [0, "clear"] : cell))
       );
