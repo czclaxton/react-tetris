@@ -18,7 +18,7 @@ const Tetris = () => {
   const [dropTime, setDropTime] = useState(null);
   const [gameOver, setGameOver] = useState(false);
 
-  const [player, updatePlayerPos, resetPlayer] = usePlayer();
+  const [player, updatePlayerPos, resetPlayer, playerRotate] = usePlayer();
 
   const [stage, setStage] = useStage(player, resetPlayer);
 
@@ -67,6 +67,8 @@ const Tetris = () => {
       } else if (keyCode === 40) {
         // move down
         dropPlayer();
+      } else if (keyCode === 38) {
+        playerRotate(stage, 1);
       }
     }
   };
