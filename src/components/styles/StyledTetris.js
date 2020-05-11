@@ -24,3 +24,10 @@ export const StyledTetris = styled.div`
     padding: 0 20px;
   }
 `;
+
+export const StyledDataWrapper = styled.div`
+  padding: 40px;
+  margin: 0 auto;
+  max-width: 900px;
+  width: 100%;
+`;

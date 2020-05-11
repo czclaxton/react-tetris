@@ -1,14 +1,27 @@
 import React, { useState } from "react";
 
+// GraphQL
+import gql from "graphql-tag";
+import { Query } from "react-apollo";
+
+// Helpers
 import { createStage, checkCollision } from "../gameHelpers";
 
 // Components
 import Stage from "./Stage";
 import Display from "./Display";
 import StartButton from "./StartButton";
+import Leaderboard from "./Leaderboard";
 
 // Styled Components
-import { StyledTetris, StyledTetrisWrapper } from "./styles/StyledTetris";
+import {
+  StyledTetris,
+  StyledTetrisWrapper,
+  StyledDataWrapper,
+} from "./styles/StyledTetris";
+
+// Semantic UI
+import { Modal, Button, Form, Icon } from "semantic-ui-react";
 
 // Custom Hooks
 import { usePlayer } from "../hooks/usePlayer";
@@ -16,9 +29,22 @@ import { useStage } from "../hooks/useStage";
 import { useInterval } from "../hooks/useInterval";
 import { useGameStatus } from "../hooks/useGameStatus";
 
+// GraphQL Queries
+const LEADERBOARD_QUERY = gql`
+  query LeaderboardQuery {
+    leaderboard {
+      name
+      score
+      date
+    }
+  }
+`;
+
 const Tetris = () => {
   const [dropTime, setDropTime] = useState(null);
   const [gameOver, setGameOver] = useState(false);
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const [player, updatePlayerPos, resetPlayer, playerRotate] = usePlayer();
   const [stage, setStage, rowsCleared] = useStage(player, resetPlayer);
@@ -27,6 +53,11 @@ const Tetris = () => {
   );
 
   console.log("re-render");
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    setModalOpen(true);
+  };
 
   const movePlayer = (dir) => {
     if (!checkCollision(player, stage, { x: dir, y: 0 })) {
@@ -37,7 +68,7 @@ const Tetris = () => {
   const startGame = () => {
     console.log("started");
     // Reset game
-    setStage(stage);
+    setStage(createStage());
     setDropTime(1000);
     resetPlayer();
     setGameOver(false);
@@ -63,6 +94,7 @@ const Tetris = () => {
         console.log("Game Over");
         setGameOver(true);
         setDropTime(null);
+        setModalOpen(true);
       }
       updatePlayerPos({ x: 0, y: 0, collided: true });
     }
@@ -113,19 +145,77 @@ const Tetris = () => {
     >
       <StyledTetris>
         <Stage stage={stage} />
-        <aside>
-          {gameOver ? (
-            <Display gameOver={gameOver} text={`Game Over: ${score}`} />
-          ) : (
-            <div>
-              <Display text={`Score: ${score}`} />
-              <Display text={`Rows: ${rows}`} />
-              <Display text={`Level: ${level}`} />
-            </div>
-          )}
-          <StartButton callback={startGame} />
-        </aside>
+        <StyledDataWrapper>
+          <aside>
+            {gameOver ? (
+              <Display gameOver={gameOver} text={`Game Over: ${score}`} />
+            ) : (
+              <div>
+                <Display text={`Score: ${score}`} />
+                <Display text={`Rows: ${rows}`} />
+                <Display text={`Level: ${level}`} />
+              </div>
+            )}
+            <StartButton callback={startGame} />
+          </aside>
+          <Leaderboard />
+        </StyledDataWrapper>
       </StyledTetris>
+      <Modal
+        size="mini"
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+        basic
+        dimmer="blurring"
+        closeIcon
+      >
+        <Modal.Header
+          style={{
+            color: "red",
+            fontFamily: "Pixel",
+          }}
+        >
+          GAME OVER{" "}
+        </Modal.Header>
+        <Modal.Content>
+          <Form>
+            <Form.Field>
+              <label
+                style={{
+                  color: "red",
+                  fontFamily: "Pixel",
+                  marginBottom: "15px",
+                }}
+              >
+                FINAL SCORE: 123
+              </label>
+              <input
+                placeholder="Enter your name here..."
+                style={{
+                  backgroundColor: "black",
+                  color: "grey",
+                  fontFamily: "Pixel",
+                  border: "4px solid #333",
+                }}
+              />
+            </Form.Field>
+          </Form>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button
+            color="grey"
+            icon="arrow right"
+            labelPosition="right"
+            content="Submit"
+            type="submit"
+            style={{
+              fontFamily: "Pixel",
+            }}
+          />
+        </Modal.Actions>
+      </Modal>
     </StyledTetrisWrapper>
   );
 };
