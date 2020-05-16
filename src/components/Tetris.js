@@ -1,8 +1,5 @@
-import React, { useState } from "react";
-
-// GraphQL
-import gql from "graphql-tag";
-import { Query } from "react-apollo";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 // Helpers
 import { createStage, checkCollision } from "../gameHelpers";
@@ -21,24 +18,13 @@ import {
 } from "./styles/StyledTetris";
 
 // Semantic UI
-import { Modal, Button, Form, Icon } from "semantic-ui-react";
+import { Modal, Button, Form } from "semantic-ui-react";
 
 // Custom Hooks
 import { usePlayer } from "../hooks/usePlayer";
 import { useStage } from "../hooks/useStage";
 import { useInterval } from "../hooks/useInterval";
 import { useGameStatus } from "../hooks/useGameStatus";
-
-// GraphQL Queries
-const LEADERBOARD_QUERY = gql`
-  query LeaderboardQuery {
-    leaderboard {
-      name
-      score
-      date
-    }
-  }
-`;
 
 const Tetris = () => {
   const [dropTime, setDropTime] = useState(null);
@@ -52,11 +38,23 @@ const Tetris = () => {
     rowsCleared
   );
 
+  const [name, setName] = useState("");
+  const [leaderboard, SetLeaderboard] = useState(null);
+
   console.log("re-render");
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    setModalOpen(true);
+  useEffect(() => {
+    const grabLeaderboard = axios.get("localhost:8000/api/leaderboard/");
+    SetLeaderboard(grabLeaderboard);
+  }, []);
+
+  const handleChange = (e, { value }) => {
+    setName(value);
+  };
+
+  const handleSubmit = () => {
+    axios.post("localhost:8000/api/leaderboard/", { name, score });
+    setModalOpen(false);
   };
 
   const movePlayer = (dir) => {
@@ -75,6 +73,7 @@ const Tetris = () => {
     setScore(0);
     setRows(0);
     setLevel(0);
+    setName("");
   };
 
   const drop = () => {
@@ -158,7 +157,7 @@ const Tetris = () => {
             )}
             <StartButton callback={startGame} />
           </aside>
-          <Leaderboard />
+          <Leaderboard leaderboard={leaderboard} />
         </StyledDataWrapper>
       </StyledTetris>
       <Modal
@@ -180,7 +179,7 @@ const Tetris = () => {
           GAME OVER{" "}
         </Modal.Header>
         <Modal.Content>
-          <Form>
+          <Form onSubmit={handleSubmit}>
             <Form.Field>
               <label
                 style={{
@@ -189,10 +188,13 @@ const Tetris = () => {
                   marginBottom: "15px",
                 }}
               >
-                FINAL SCORE: 123
+                FINAL SCORE: {score}
               </label>
-              <input
+              <Form.Input
                 placeholder="Enter your name here..."
+                name="name"
+                value={name}
+                onChange={handleChange}
                 style={{
                   backgroundColor: "black",
                   color: "grey",
