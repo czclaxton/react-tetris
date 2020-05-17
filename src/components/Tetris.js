@@ -1,14 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Particles from "react-particles-js";
 
+// Helpers
 import { createStage, checkCollision } from "../gameHelpers";
 
 // Components
 import Stage from "./Stage";
 import Display from "./Display";
 import StartButton from "./StartButton";
+import Leaderboard from "./Leaderboard";
 
 // Styled Components
-import { StyledTetris, StyledTetrisWrapper } from "./styles/StyledTetris";
+import {
+  StyledTetris,
+  StyledTetrisWrapper,
+  StyledDataWrapper,
+} from "./styles/StyledTetris";
+
+// Semantic UI
+import { Modal, Button, Form } from "semantic-ui-react";
 
 // Custom Hooks
 import { usePlayer } from "../hooks/usePlayer";
@@ -20,13 +31,41 @@ const Tetris = () => {
   const [dropTime, setDropTime] = useState(null);
   const [gameOver, setGameOver] = useState(false);
 
+  const [modalOpen, setModalOpen] = useState(false);
+
   const [player, updatePlayerPos, resetPlayer, playerRotate] = usePlayer();
   const [stage, setStage, rowsCleared] = useStage(player, resetPlayer);
   const [score, setScore, rows, setRows, level, setLevel] = useGameStatus(
     rowsCleared
   );
 
+  const [name, setName] = useState("");
+  const [leaderboard, SetLeaderboard] = useState(null);
+
   console.log("re-render");
+
+  useEffect(() => {
+    axios
+      .get("https://react-tetris-leaderboard.herokuapp.com/api/leaderboard/")
+      .then((res) => {
+        SetLeaderboard(res.data);
+        console.log("leaderboard", leaderboard);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  const handleChange = (e, { value }) => {
+    setName(value);
+  };
+
+  const handleSubmit = () => {
+    console.log("submitting");
+    axios.post(
+      "https://react-tetris-leaderboard.herokuapp.com/api/leaderboard/",
+      { name, score }
+    );
+    setModalOpen(false);
+  };
 
   const movePlayer = (dir) => {
     if (!checkCollision(player, stage, { x: dir, y: 0 })) {
@@ -37,13 +76,14 @@ const Tetris = () => {
   const startGame = () => {
     console.log("started");
     // Reset game
-    setStage(stage);
+    setStage(createStage());
     setDropTime(1000);
     resetPlayer();
     setGameOver(false);
     setScore(0);
     setRows(0);
     setLevel(0);
+    setName("");
   };
 
   const drop = () => {
@@ -63,6 +103,7 @@ const Tetris = () => {
         console.log("Game Over");
         setGameOver(true);
         setDropTime(null);
+        setModalOpen(true);
       }
       updatePlayerPos({ x: 0, y: 0, collided: true });
     }
@@ -111,21 +152,133 @@ const Tetris = () => {
       onKeyDown={(e) => move(e)}
       onKeyUp={keyUp}
     >
+      <Particles
+        style={{ position: "absolute", zIndex: -1 }}
+        params={{
+          particles: {
+            number: {
+              value: 70,
+              density: {
+                enable: true,
+                value_area: 1500,
+              },
+            },
+            line_linked: {
+              enable: false,
+              opacity: 0.0,
+            },
+            move: {
+              direction: "none",
+              speed: 0.25,
+              trail: {
+                enable: true,
+                length: 10,
+              },
+            },
+            size: {
+              value: 1,
+            },
+            opacity: {
+              animation: {
+                enable: true,
+                speed: 1,
+                opacity_min: 0.35,
+              },
+              random: {
+                enable: true,
+              },
+            },
+            twinkle: {
+              particles: {
+                enable: true,
+                frequency: 0.05,
+                opacity: 1,
+              },
+            },
+          },
+        }}
+      />
       <StyledTetris>
         <Stage stage={stage} />
-        <aside>
-          {gameOver ? (
-            <Display gameOver={gameOver} text={`Game Over: ${score}`} />
+        <StyledDataWrapper>
+          <aside>
+            {gameOver ? (
+              <Display gameOver={gameOver} text={`Game Over: ${score}`} />
+            ) : (
+              <div>
+                <Display text={`Score: ${score}`} />
+                <Display text={`Rows: ${rows}`} />
+                <Display text={`Level: ${level}`} />
+              </div>
+            )}
+            <StartButton callback={startGame} />
+          </aside>
+          {leaderboard ? (
+            <Leaderboard leaderboard={leaderboard} />
           ) : (
-            <div>
-              <Display text={`Score: ${score}`} />
-              <Display text={`Rows: ${rows}`} />
-              <Display text={`Level: ${level}`} />
-            </div>
+            <div>loading...</div>
           )}
-          <StartButton callback={startGame} />
-        </aside>
+        </StyledDataWrapper>
       </StyledTetris>
+      <Modal
+        size="mini"
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+        basic
+        dimmer="blurring"
+        closeIcon
+      >
+        <Modal.Header
+          style={{
+            color: "red",
+            fontFamily: "Pixel",
+          }}
+        >
+          GAME OVER{" "}
+        </Modal.Header>
+        <Modal.Content>
+          <Form>
+            <Form.Field>
+              <label
+                style={{
+                  color: "red",
+                  fontFamily: "Pixel",
+                  marginBottom: "15px",
+                }}
+              >
+                FINAL SCORE: {score}
+              </label>
+              <Form.Input
+                placeholder="Enter your name here..."
+                name="name"
+                value={name}
+                onChange={handleChange}
+                style={{
+                  backgroundColor: "black",
+                  color: "grey",
+                  fontFamily: "Pixel",
+                  border: "4px solid #333",
+                }}
+              />
+            </Form.Field>
+          </Form>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button
+            color="grey"
+            icon="arrow right"
+            labelPosition="right"
+            content="Submit"
+            type="submit"
+            onClick={handleSubmit}
+            style={{
+              fontFamily: "Pixel",
+            }}
+          />
+        </Modal.Actions>
+      </Modal>
     </StyledTetrisWrapper>
   );
 };
