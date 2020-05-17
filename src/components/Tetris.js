@@ -46,7 +46,7 @@ const Tetris = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/leaderboard/")
+      .get("https://react-tetris-leaderboard.herokuapp.com/api/leaderboard/")
       .then((res) => {
         SetLeaderboard(res.data);
         console.log("leaderboard", leaderboard);
@@ -60,7 +60,10 @@ const Tetris = () => {
 
   const handleSubmit = () => {
     console.log("submitting");
-    axios.post("http://localhost:8000/api/leaderboard/", { name, score });
+    axios.post(
+      "https://react-tetris-leaderboard.herokuapp.com/api/leaderboard/",
+      { name, score }
+    );
     setModalOpen(false);
   };
 
