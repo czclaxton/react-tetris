@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Particles from "react-particles-js";
 
 // Helpers
 import { createStage, checkCollision } from "../gameHelpers";
@@ -148,6 +149,52 @@ const Tetris = () => {
       onKeyDown={(e) => move(e)}
       onKeyUp={keyUp}
     >
+      <Particles
+        style={{ position: "absolute", zIndex: -1 }}
+        params={{
+          particles: {
+            number: {
+              value: 70,
+              density: {
+                enable: true,
+                value_area: 1500,
+              },
+            },
+            line_linked: {
+              enable: false,
+              opacity: 0.0,
+            },
+            move: {
+              direction: "none",
+              speed: 0.25,
+              trail: {
+                enable: true,
+                length: 10,
+              },
+            },
+            size: {
+              value: 1,
+            },
+            opacity: {
+              animation: {
+                enable: true,
+                speed: 1,
+                opacity_min: 0.35,
+              },
+              random: {
+                enable: true,
+              },
+            },
+            twinkle: {
+              particles: {
+                enable: true,
+                frequency: 0.05,
+                opacity: 1,
+              },
+            },
+          },
+        }}
+      />
       <StyledTetris>
         <Stage stage={stage} />
         <StyledDataWrapper>
