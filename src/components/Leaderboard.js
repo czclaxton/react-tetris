@@ -5,7 +5,7 @@ import { Table } from "semantic-ui-react";
 
 const Leaderboard = (props) => {
   const { leaderboard } = props;
-  console.log("leaderboard", leaderboard);
+
   return (
     <Table
       celled
@@ -51,43 +51,39 @@ const Leaderboard = (props) => {
       </Table.Header>
 
       <Table.Body>
-        return (
-        <>
-          {leaderboard.map((entry, i) => (
-            <Table.Row key={i}>
-              <Table.Cell
-                style={{
-                  backgroundColor: "black",
-                  color: "grey",
-                  borderBottom: "4px solid #333",
-                  borderRight: "4px solid #333",
-                }}
-              >
-                {entry.name}
-              </Table.Cell>
-              <Table.Cell
-                style={{
-                  backgroundColor: "black",
-                  color: "grey",
-                  borderBottom: "4px solid #333",
-                  borderRight: "4px solid #333",
-                }}
-              >
-                {entry.score}
-              </Table.Cell>
-              <Table.Cell
-                style={{
-                  backgroundColor: "black",
-                  color: "grey",
-                  borderBottom: "4px solid #333",
-                }}
-              >
-                {entry.date}
-              </Table.Cell>
-            </Table.Row>
-          ))}
-        </>
-        ); }}
+        {leaderboard.map((entry, i) => (
+          <Table.Row key={i}>
+            <Table.Cell
+              style={{
+                backgroundColor: "black",
+                color: "grey",
+                borderBottom: "4px solid #333",
+                borderRight: "4px solid #333",
+              }}
+            >
+              {entry.name}
+            </Table.Cell>
+            <Table.Cell
+              style={{
+                backgroundColor: "black",
+                color: "grey",
+                borderBottom: "4px solid #333",
+                borderRight: "4px solid #333",
+              }}
+            >
+              {entry.score}
+            </Table.Cell>
+            <Table.Cell
+              style={{
+                backgroundColor: "black",
+                color: "grey",
+                borderBottom: "4px solid #333",
+              }}
+            >
+              {entry.date}
+            </Table.Cell>
+          </Table.Row>
+        ))}
       </Table.Body>
     </Table>
   );

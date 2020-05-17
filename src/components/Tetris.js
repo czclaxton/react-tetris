@@ -44,8 +44,13 @@ const Tetris = () => {
   console.log("re-render");
 
   useEffect(() => {
-    const grabLeaderboard = axios.get("localhost:8000/api/leaderboard/");
-    SetLeaderboard(grabLeaderboard);
+    axios
+      .get("http://localhost:8000/api/leaderboard/")
+      .then((res) => {
+        SetLeaderboard(res.data);
+        console.log("leaderboard", leaderboard);
+      })
+      .catch((err) => console.log(err));
   }, []);
 
   const handleChange = (e, { value }) => {
@@ -53,7 +58,8 @@ const Tetris = () => {
   };
 
   const handleSubmit = () => {
-    axios.post("localhost:8000/api/leaderboard/", { name, score });
+    console.log("submitting");
+    axios.post("http://localhost:8000/api/leaderboard/", { name, score });
     setModalOpen(false);
   };
 
@@ -157,7 +163,11 @@ const Tetris = () => {
             )}
             <StartButton callback={startGame} />
           </aside>
-          <Leaderboard leaderboard={leaderboard} />
+          {leaderboard ? (
+            <Leaderboard leaderboard={leaderboard} />
+          ) : (
+            <div>loading...</div>
+          )}
         </StyledDataWrapper>
       </StyledTetris>
       <Modal
@@ -179,7 +189,7 @@ const Tetris = () => {
           GAME OVER{" "}
         </Modal.Header>
         <Modal.Content>
-          <Form onSubmit={handleSubmit}>
+          <Form>
             <Form.Field>
               <label
                 style={{
@@ -212,6 +222,7 @@ const Tetris = () => {
             labelPosition="right"
             content="Submit"
             type="submit"
+            onClick={handleSubmit}
             style={{
               fontFamily: "Pixel",
             }}
