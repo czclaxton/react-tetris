@@ -10,6 +10,7 @@ import Stage from "./Stage";
 import Display from "./Display";
 import StartButton from "./StartButton";
 import Leaderboard from "./Leaderboard";
+import Instructions from "./Instructions";
 
 // Styled Components
 import {
@@ -59,7 +60,6 @@ const Tetris = () => {
   };
 
   const handleSubmit = () => {
-    console.log("submitting");
     axios.post(
       "https://react-tetris-leaderboard.herokuapp.com/api/leaderboard/",
       { name, score }
@@ -152,6 +152,7 @@ const Tetris = () => {
       onKeyDown={(e) => move(e)}
       onKeyUp={keyUp}
     >
+      <Instructions />
       <Particles
         style={{ position: "absolute", zIndex: -1 }}
         params={{
