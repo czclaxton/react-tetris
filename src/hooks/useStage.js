@@ -12,8 +12,11 @@ export const useStage = (player, resetPlayer) => {
     const sweepRows = (newStage) =>
       newStage.reduce((acc, row) => {
         if (row.findIndex((cell) => cell[0] === 0) === -1) {
+          // Check row for any empty cells
+          // if all cells are tetromino then we clear the row
           setRowsCleared((prev) => prev + 1);
           acc.unshift(new Array(newStage[0].length).fill([0, "clear"]));
+          // return added clear row to top and ignore full row
           return acc;
         }
         acc.push(row);
